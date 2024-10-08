@@ -33,8 +33,7 @@ const PersistQueryProvider = ({children}: persistQueryProviderTypes.PersistQuery
             persistOptions={{
                 persister,
                 dehydrateOptions: {
-                    // shouldDehydrateMutation: (m: Mutation) => true
-                    shouldDehydrateMutation: (m: Mutation) => defaultShouldDehydrateMutation(m) || m.state.status === 'idle' || m.state.status === 'pending'
+                    shouldDehydrateMutation: (m: Mutation) => true
                 }
             }}
             client={queryClient}
