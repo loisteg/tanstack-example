@@ -65,14 +65,14 @@ const index = () => {
     mutationKey: ["setTask"],
     mutationFn: putThis,
     onMutate: async (payload: { item: any; title: string }) => {
-      await queryClient.cancelQueries(["tasks"]);
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
       updateLocalExerciseList(payload.item, payload.title, false);
       setMutLengthOnStart(queryClient.getMutationCache().getAll().length);
     },
     onSuccess() {
       // console.log('DATA:', data)
       // updateLocalExerciseList(data.item, data.title, true);
-      queryClient.invalidateQueries(["tasks"]);
+      //   queryClient.invalidateQueries(["tasks"]);
       setMutLength(queryClient.getMutationCache().getAll().length);
     },
   });
