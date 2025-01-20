@@ -71,7 +71,7 @@ const index = () => {
     },
     onSuccess() {
       // console.log('DATA:', data)
-      // updateLocalExerciseList(data.item, data.title, true);
+      updateLocalExerciseList(data.item, data.title, true);
       //   queryClient.invalidateQueries(["tasks"]);
       setMutLength(queryClient.getMutationCache().getAll().length);
     },
@@ -104,7 +104,7 @@ const index = () => {
       <Button
         title={"CHANGE"}
         style={{ backgroundColor: "black" }}
-        onPress={() => mutate({ item: data[0], title: "Change to this" + i++ })}
+        onPress={() => mutate({ item: data[3], title: "Change to this" + i++ })}
       />
       <Button
         title={"CHANGE ONLINE"}
