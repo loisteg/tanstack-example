@@ -31,23 +31,25 @@ const PersistQueryProvider = ({
   return (
     <PersistQueryClientProvider
       onSuccess={() => {
-        const mutations = queryClient
-          .getMutationCache()
-          .getAll()
-          .filter(
-            (m) => m.state.status === "idle" || m.state.status === "pending"
-          );
-        setBeforeAll(mutations.length);
+        setTimeout(() => {
+          const mutations = queryClient
+            .getMutationCache()
+            .getAll()
+            .filter(
+              (m) => m.state.status === "idle" || m.state.status === "pending"
+            );
+          setBeforeAll(mutations.length);
 
-        for (const mutation of mutations) {
-          void mutation.continue();
-        }
+          for (const mutation of mutations) {
+            void mutation.continue();
+          }
 
-        if (onlineManager.isOnline()) {
-          queryClient
-            .resumePausedMutations()
-            .then(() => queryClient.invalidateQueries());
-        }
+          if (onlineManager.isOnline()) {
+            queryClient
+              .resumePausedMutations()
+              .then(() => queryClient.invalidateQueries());
+          }
+        }, 3000);
       }}
       persistOptions={{
         persister,

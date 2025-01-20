@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/src/components/UI";
 
 import { useNetInfo } from "@react-native-community/netinfo";
@@ -24,21 +24,21 @@ const getThhis = async () => {
   }
 };
 
-export const putThis = (variables: { item: any; title: string }) =>
+export const putThis = (variables: { id: number; title: string }) =>
   putDataAction(
-    `https://khudenko41.bld.spl.co.ua/api/2.0/admin/scheduling/tasks/${variables.item.id}`,
+    `https://khudenko41.bld.spl.co.ua/api/2.0/admin/scheduling/tasks/${variables.id}`,
     { title: variables.title }
   );
 
 const updateLocalExerciseList = (
-  item: any,
+  id: number,
   title: string,
   isNotSynced?: boolean
 ) => {
   // console.log('LOCAL EXERCISES: ', item)
   queryClient.setQueryData(["tasks"], (exercisesList) => {
     return exercisesList?.map((exercise) => {
-      if (exercise.id === item.id) {
+      if (exercise.id === id) {
         return { ...exercise, title, isNotSynced };
       }
       return exercise;
@@ -64,14 +64,14 @@ const index = () => {
   const { mutate, error } = useMutation({
     mutationKey: ["setTask"],
     mutationFn: putThis,
-    onMutate: async (payload: { item: any; title: string }) => {
+    onMutate: async (payload: { id: number; title: string }) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
-      updateLocalExerciseList(payload.item, payload.title, false);
+      updateLocalExerciseList(payload.id, payload.title, false);
       setMutLengthOnStart(queryClient.getMutationCache().getAll().length);
     },
     onSuccess() {
       // console.log('DATA:', data)
-      updateLocalExerciseList(data.item, data.title, true);
+      updateLocalExerciseList(data.id, data.title, true);
       //   queryClient.invalidateQueries(["tasks"]);
       setMutLength(queryClient.getMutationCache().getAll().length);
     },
@@ -80,7 +80,7 @@ const index = () => {
   if (!data) return <></>;
 
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView style={{ width: "100%" }}>
       <View
         style={{
           justifyContent: "center",
@@ -104,7 +104,9 @@ const index = () => {
       <Button
         title={"CHANGE"}
         style={{ backgroundColor: "black" }}
-        onPress={() => mutate({ item: data[3], title: "Change to this" + i++ })}
+        onPress={() =>
+          mutate({ id: data[3].id, title: "Change to this" + i++ })
+        }
       />
       <Button
         title={"CHANGE ONLINE"}
@@ -131,7 +133,82 @@ const index = () => {
       <Text>Mutation on start length: {mutLengthOnStart}</Text>
       <Text>Mutation length: {mutLength}</Text>
       <Text>Net status: {String(!!isConnected)}</Text>
-    </View>
+      <Text style={{ marginTop: 40, fontWeight: "bold" }}>All mutations</Text>
+      <View
+        style={{
+          width: "100%",
+          justifyContent: "center",
+          flexDirection: "row",
+          paddingBottom: 20,
+        }}
+      >
+        <Text style={{ color: "black", width: "25%" }}>Status</Text>
+        <Text style={{ color: "black", width: "25%" }}>isPaused</Text>
+        <Text style={{ color: "black", width: "25%" }}>ID</Text>
+        <Text style={{ color: "black", width: "25%" }}>Title</Text>
+      </View>
+      {queryClient
+        .getMutationCache()
+        .getAll()
+        .map((m) => (
+          <View
+            style={{
+              justifyContent: "center",
+              flexDirection: "row",
+              paddingBottom: 20,
+              width: "100%",
+            }}
+          >
+            <Text style={{ width: "25%" }}>{m.state.status}</Text>
+            <Text style={{ width: "25%" }}>{String(m.state.isPaused)}</Text>
+            <Text style={{ width: "25%" }}>{m.state.variables.id}</Text>
+            <Text style={{ width: "25%" }}>{m.state.variables.title}</Text>
+          </View>
+        ))}
+
+      <Text style={{ marginTop: 40, fontWeight: "bold" }}>Only cached</Text>
+      <View
+        style={{
+          width: "100%",
+          justifyContent: "center",
+          flexDirection: "row",
+          paddingBottom: 20,
+        }}
+      >
+        <Text style={{ color: "black", width: "25%" }}>Status</Text>
+        <Text style={{ color: "black", width: "25%" }}>isPaused</Text>
+        <Text style={{ color: "black", width: "25%" }}>ID</Text>
+        <Text style={{ color: "black", width: "25%" }}>Title</Text>
+      </View>
+      {queryClient
+        .getMutationCache()
+        .getAll()
+        .map((m) => (
+          <View>
+            <View
+              style={{
+                justifyContent: "center",
+                flexDirection: "row",
+                paddingBottom: 20,
+                width: "100%",
+              }}
+            >
+              <Text style={{ width: "25%" }}>{m.state.status}</Text>
+              <Text style={{ width: "25%" }}>{String(m.state.isPaused)}</Text>
+              <Text style={{ width: "25%" }}>{m.state.variables.id}</Text>
+              <Text style={{ width: "25%" }}>{m.state.variables.title}</Text>
+            </View>
+            {m.state.error && <Text>{m.state.error.message}</Text>}
+          </View>
+        ))}
+
+      {/* queryClient
+          .getMutationCache()
+          .getAll()
+          .filter(
+            (m) => m.state.status === "idle" || m.state.status === "pending"
+          ) */}
+    </ScrollView>
   );
 };
 
